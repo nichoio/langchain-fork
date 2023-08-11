@@ -106,12 +106,18 @@ class HuggingFacePipeline(LLM):
             import torch
 
             cuda_device_count = torch.cuda.device_count()
-            if device < -1 or (device >= cuda_device_count):
+            if device is None:
+                logger.info(
+                    "Device set to None. "
+                    "If devices are assigned through some different approach such as accelerate lib, this is fine. "
+                    "Otherwise, you must set an appropriate device."  # TODO: vllt trotzdem nicht unbedingt notwendig, device zu setzen
+                )
+            elif device < -1 or (device >= cuda_device_count):
                 raise ValueError(
                     f"Got device=={device}, "
                     f"device is required to be within [-1, {cuda_device_count})"
                 )
-            if device < 0 and cuda_device_count > 0:
+            elif device < 0 and cuda_device_count > 0:
                 logger.warning(
                     "Device has %d GPUs available. "
                     "Provide device={deviceId} to `from_model_id` to use available"
